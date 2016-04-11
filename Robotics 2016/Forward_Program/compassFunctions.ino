@@ -16,8 +16,7 @@ void turnTo(float _dir) {
   float myDir = getCompass(initialDirection);
   float offset = myDir - _dir;
   if(offset < -180.0) { offset += 360.0; }
-  while(abs(offset) > 10) {
-    Serial.println(offset);
+  while(abs(offset) > COMPASS_TOLERANCE) {
     if(offset > 0) {
       spin(-20);
     } else if(offset < 0) {

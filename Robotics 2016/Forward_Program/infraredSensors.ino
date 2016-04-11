@@ -1,21 +1,16 @@
 int getInfrared() {
-  int index = 0;
+  int index = 5;
+  ave.clear();
   Wire.requestFrom(0x50, 2);
-  for (int i = 0; i <= 4; i++) { 
+  for (int i = 0; i <= 14; i++) { 
     if (Wire.available()) {
       index = Wire.read();
+      if(index == 5) { return 5; }     
       ave.push(index);
     }
   }
   index = ave.mode();
-  ave.clear();
-//  if (index > 3) {
-//    index = 4;
-//  } else if (index < 3) {
-//    index = 2;
-//  }
-
-  return index;
+  return (index == 0) ? 5 : index;
 }
 
 boolean getPixy() {
@@ -26,13 +21,5 @@ boolean getPixy() {
     delay(10);
   }
   return(total > 0 ? true : false);
-//  if(blocks) {
-//    return true;
-//  } else {
-//    return false;
-//  }
-//  char buf[32]; 
-//  sprintf(buf, "Detected %d:\n", blocks);
-//  Serial.print(buf);
 }
 
