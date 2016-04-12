@@ -1,5 +1,4 @@
 #include <Wire.h>
-#include <NewPing.h>
 #include <SPI.h>
 #include <Pixy.h>
 #include <Adafruit_MotorShield.h>
@@ -65,6 +64,9 @@ void setup() {
 void loop() {
   int ballIndex = getInfrared();
   float facing = getCompass(initialDirection);
+  boolean seeBall = getPixy();
+  
+  Serial.println(seeBall); return;
 
   int _switch = digitalRead(SWITCH_PIN);
   int goSwitch = (_switch == 0) ? 1 : 0;
@@ -93,25 +95,10 @@ void loop() {
   delay(100);
 }
 
-/*
-  boolean seeBall = getPixy();
-
-
   delay(BNO055_SAMPLERATE_DELAY_MS);
 
-
-//  if (seeBall) {
-//    drive(0, 75, 0);
-//    delay(750);
-//    drive(0, -75, 0);
-//    delay(750);
-//    halt();
-//    return;
-//  }
-
-
-
-  if (true || abs(_RLheading) < COMPASS_TOLERANCE) {
+/*     
+ if (true || abs(_RLheading) < COMPASS_TOLERANCE) {
     
     if (rightLeft == LEFT && _distanceFromLeft < 20) {
       rightLeft = CORRECT_RIGHT;
