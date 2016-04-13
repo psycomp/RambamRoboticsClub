@@ -9,12 +9,17 @@ Adafruit_DCMotor *motor2 = AFMS.getMotor(2);
 Adafruit_DCMotor *motor3 = AFMS.getMotor(3);
 Adafruit_DCMotor *motor4 = AFMS.getMotor(4);
 int _stopMode = BRAKE;
+int _x, _y, _r;
 
 // drive(x, y, r)
 // x: x-vector, 0-100% of full speed
 // y: y-vector, 0-100% of full speed
 // r: clockwise rotation, 0-100% of full speed
 void drive(int x, int y, int r) {
+  _x = x;
+  _y = y;
+  _r = r;
+  
 	if(x > 100) { x = 100; } else if(x < -100) { x = -100; }
 	if(y > 100) { y = 100; } else if(y < -100) { y = -100; }
 
@@ -70,4 +75,11 @@ void rDrive(int a, int v, int r) {
 void spin(int r) { drive(0, 0, r); }
 
 void halt() { drive(0, 0, 0); }
+
+void getDriveValues(int* x, int* y, int* r) {
+  *x = _x;
+  *y = _y;
+  *r = _r;
+  return;
+}
 

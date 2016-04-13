@@ -40,6 +40,10 @@ imu::Vector<3> euler;
 
 int ballIndex;
 
+int xVelocity, yVelocity, rVelocity;
+unsigned long previousMillis = 0;        // will store last time LED was updated
+const long interval = 1000;           // interval at which to blink (milliseconds)
+
 void setup() {
   Serial.begin(9600);
   Wire.begin();
@@ -61,11 +65,12 @@ void setup() {
 }
 
 void loop() {
+  unsigned long currentMillis = millis();
+
   // right, left should be 55cm, rear should be ~21cm.
-  int _distanceFromLeft, _distanceFromRight, _distanceFromBack;
-  _distanceFromLeft = getLeftDistance();
-  _distanceFromRight = getRightDistance();
-  _distanceFromBack = getRearDistance();
+  int _distanceFromLeft = getLeftDistance();
+  int _distanceFromRight = getRightDistance();
+  int _distanceFromBack = getRearDistance();
 
   ballIndex = getInfrared();
 
@@ -96,22 +101,30 @@ void loop() {
   int rightLeft = STOP;
   int backForth = STOP;
 
-  float _RLheading = getCompass(initialDirection);
-  if (abs(_RLheading) >= COMPASS_TOLERANCE) {
-    turnTo(0.00);
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+    float _RLheading = getCompass(initialDirection);
+    if (abs(_RLheading) >= COMPASS_TOLERANCE) {
+      getDriveValues(&xVelocity, &yVelocity, &rVelocity);
+      turnTo(0.00);
+      drive(xVelocity, yVelocity, rVelocity);
+    }
   }
 
-  if (_distanceFromBack > 20) {
+  int backToleranceMax = (_distanceFromLeft < 59 || _distanceFromRight < 59) ? 20 : 36;
+  int backToleranceMin = (_distanceFromLeft < 59 || _distanceFromRight < 59) ? 15 : 31;
+  
+  if (_distanceFromBack > backToleranceMax) {
     backForth = BACK;
   }
-  else if (_distanceFromBack < 15) {
+  else if (_distanceFromBack < backToleranceMin) {
     backForth = FORTH;
   }
 
-  _RLheading = getCompass(initialDirection);
+  float _RLheading = getCompass(initialDirection);
   Serial.println(_RLheading);
 
-  if (true || abs(_RLheading) < COMPASS_TOLERANCE) {
+  if (abs(_RLheading) < COMPASS_TOLERANCE) {
     if (ballIndex < 3) {
       rightLeft = LEFT;
     } else if (ballIndex > 3) {

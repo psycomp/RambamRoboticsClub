@@ -73,7 +73,8 @@ void loop() {
 
   if (goSwitch == 0) {
     halt();
-    delay(10);
+    initialDirection = getCompass();
+    delay(100);
     return;
   }
 
@@ -94,20 +95,4 @@ void loop() {
   drive(x, y, 0);
   delay(100);
 }
-
-  delay(BNO055_SAMPLERATE_DELAY_MS);
-
-/*     
- if (true || abs(_RLheading) < COMPASS_TOLERANCE) {
-    
-    if (rightLeft == LEFT && _distanceFromLeft < 20) {
-      rightLeft = CORRECT_RIGHT;
-    }
-    else if (rightLeft == RIGHT && _distanceFromRight < 20) {
-      rightLeft = CORRECT_LEFT;
-    }
-  }
-
-  drive(75 * rightLeft, 30 * backForth, 0);
-*/
 
