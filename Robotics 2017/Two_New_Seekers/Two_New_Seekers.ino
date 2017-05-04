@@ -9,7 +9,7 @@ extern "C" {
 
 boolean SensorOne = false;
 boolean SensorTwo = false;
- 
+
 void selectSeeker(uint8_t i) {
   if (i > 7) return;
   Wire.beginTransmission(MULTIPLEXER);
