@@ -6,7 +6,9 @@
 #include <Adafruit_MotorShield.h>
 #include <Wire.h>
 #include <HTInfraredSeeker.h>
+#include <Wire.h> // Include the Arduino SPI library
 
+#define DISPLAY 0x71
 #define BNO055_SAMPLERATE_DELAY_MS (100)
 #define MULTIPLEXER 0x70
 
@@ -46,6 +48,20 @@ void setup(void) {
   }
   delay(500);
 
+  Serial.begin(9600);
+  Wire.begin();  // Initialize hardware I2C pins
+  
+  Wire.beginTransmission(DISPLAY);
+  byte error = Wire.endTransmission();
+  if (error != 0) {
+    Serial.print(F("Couldn't find the display."));
+    while(1);
+  }
+
+  clearDisplayI2C();  // Clears display, resets cursor
+  setBrightnessI2C(255);  // High brightness
+  delay(100);
+
   if(!bno.begin()) {
     Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
     while(1);
@@ -75,6 +91,11 @@ void setup(void) {
 }
 
 void loop(void) {
+  s7sSendStringI2C("-HI-");
+  delay(1500);
+  clearDisplayI2C();  
+  delay(1500);
+
   InfraredResult InfraredBall1, InfraredBall2;
   
   if(SensorOne) {
@@ -142,5 +163,28 @@ void selectSeeker(uint8_t i) {
   Wire.beginTransmission(MULTIPLEXER);
   Wire.write(1 << i);
   Wire.endTransmission();  
+}
+
+
+void s7sSendStringI2C(String toSend) {
+  Wire.beginTransmission(DISPLAY);
+  for (int i=0; i<4; i++)
+  {
+    Wire.write(toSend[i]);
+  }
+  Wire.endTransmission();
+}
+
+void clearDisplayI2C() {
+  Wire.beginTransmission(DISPLAY);
+  Wire.write(0x76);  // Clear display command
+  Wire.endTransmission();
+}
+
+void setBrightnessI2C(byte value) {
+  Wire.beginTransmission(DISPLAY);
+  Wire.write(0x7A);  // Set brightness command byte
+  Wire.write(value);  // brightness data byte
+  Wire.endTransmission();
 }
 
