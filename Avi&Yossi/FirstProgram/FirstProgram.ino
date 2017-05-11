@@ -4,32 +4,47 @@
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 #include <Adafruit_MotorShield.h>
-#define BNO055_SAMPLERATE_DELAY_MS (100)
+#include <Wire.h>
+#include <HTInfraredSeeker.h>
 
+#define BNO055_SAMPLERATE_DELAY_MS (100)
+#define MULTIPLEXER 0x70
+
+extern "C" { 
+  #include "utility/twi.h"  // from Wire library, so we can do bus scanning
+}
 
 Adafruit_BNO055 bno = Adafruit_BNO055();
-
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
-
-
-
-
-/* Example code for the Adafruit TCS34725 breakout library */
-
-/* Connect SCL    to analog 5
-   Connect SDA    to analog 4
-   Connect VDD    to 3.3V DC
-   Connect GROUND to common ground */
-   
-/* Initialise with default values (int time = 2.4ms, gain = 1x) */
-// Adafruit_TCS34725 tcs = Adafruit_TCS34725();
-
-/* Initialise with specific int time and gain values */
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_700MS, TCS34725_GAIN_1X);
+
+boolean SensorOne = false;
+boolean SensorTwo = false;
+
+int reading1, strength1;
+int reading2, strength2;
 
 void setup(void) {
 
-    Serial.begin(9600);
+  Serial.begin(9600);
+
+  while (!Serial);
+  delay(500);
+  Serial.begin(9600);
+  Wire.begin();
+
+  uint8_t data;
+  selectSeeker(0);
+  if (!twi_writeTo(MULTIPLEXER, &data, 0, 1, 1)) {
+    SensorOne = true;
+    InfraredSeeker::Initialize();
+  }
+  selectSeeker(1);
+  if (!twi_writeTo(MULTIPLEXER, &data, 0, 1, 1)) {
+    SensorTwo = true;
+    InfraredSeeker::Initialize();
+  }
+  delay(500);
 
   if(!bno.begin()) {
     Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
@@ -60,6 +75,40 @@ void setup(void) {
 }
 
 void loop(void) {
+  InfraredResult InfraredBall1, InfraredBall2;
+  
+  if(SensorOne) {
+    selectSeeker(0);
+    InfraredBall1 = InfraredSeeker::ReadAC();
+    reading1 = InfraredBall1.Direction - 5;
+    strength1 = InfraredBall1.Strength / 8;
+    if(reading1 == -5 || reading1 == 5) {
+      reading1 = 0;
+      strength1 = 0;
+    }
+  }
+
+  if(SensorTwo) {
+    selectSeeker(1);
+    InfraredBall2 = InfraredSeeker::ReadAC();
+    reading2 = InfraredBall2.Direction - 5;
+    strength2 = InfraredBall2.Strength / 8;
+    if(reading2 == -5 || reading2 == 5) {
+      reading2 = 0;
+      strength2 = 0;
+    }
+  }
+  
+  char buffer[100];
+  if(SensorOne && !SensorTwo)
+    sprintf(buffer,"%i,%i\n",reading1, strength1);
+  if(!SensorOne && SensorTwo)
+    sprintf(buffer,"%i,%i\n",reading2, strength2);
+  if(SensorOne && SensorTwo)
+    sprintf(buffer,"%i,%i,%i,%i\n",reading1, strength1, reading2, strength2);
+    // Give status reading that we should move back
+  Serial.print(buffer);
+
   uint16_t r, g, b, c, colorTemp, lux;
   
   tcs.getRawData(&r, &g, &b, &c);
@@ -80,11 +129,18 @@ void loop(void) {
   Serial.println(heading);
   delay(BNO055_SAMPLERATE_DELAY_MS);
 
-    drive(-50, 0, 0);
+  drive(-50, 0, 0);
   delay(5000);
   halt();
   delay(2000);
   
-  }
+}
 
+ 
+void selectSeeker(uint8_t i) {
+  if (i > 7) return;
+  Wire.beginTransmission(MULTIPLEXER);
+  Wire.write(1 << i);
+  Wire.endTransmission();  
+}
 
