@@ -1,3 +1,13 @@
+#define MULTIPLEXER 0x70
+#define BNO055_SAMPLERATE_DELAY_MS (100)
+
+// Global Variables
+boolean SensorOne = false;
+boolean SensorTwo = false;
+
+Adafruit_BNO055 bno = Adafruit_BNO055();
+Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_700MS, TCS34725_GAIN_1X);
+
 // Read the off switch
 boolean getOffSwitch() {
   return digitalRead(OFF_SWITCH);

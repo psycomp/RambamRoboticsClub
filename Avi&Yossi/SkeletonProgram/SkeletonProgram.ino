@@ -8,9 +8,6 @@
 #include <math.h>
 
 #define OFF_SWITCH 7
-#define DISPLAY 0x71
-#define MULTIPLEXER 0x70
-#define BNO055_SAMPLERATE_DELAY_MS (100)
 
 #define NO_STATE    0
 #define STATE_ONE   1
@@ -26,12 +23,7 @@ extern "C" {
 }
 
 // Global Variables
-Adafruit_BNO055 bno = Adafruit_BNO055();
-Adafruit_MotorShield AFMS = Adafruit_MotorShield();
-Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_700MS, TCS34725_GAIN_1X);
-
-boolean SensorOne = false;
-boolean SensorTwo = false;
+int currentState = STATE_ONE, previousState = NO_STATE;
 
 void setup(void) {
   setupEverything();
@@ -39,7 +31,6 @@ void setup(void) {
 }
 
 void loop(void) {
-  int currentState = STATE_ONE, previousState = NO_STATE;
   boolean offSwitch = getOffSwitch();
   int valueA = getLegoSensor();
   int valueB = getColorSensor();
@@ -52,6 +43,12 @@ void loop(void) {
   halt();
   delay(2000);  // Delay is bad!!!!
 
+  if(offSwitch == true) {
+    // do something;
+  } else {
+    // do something else;
+  }
+  
   switch(currentState) {
     case STATE_ONE:
       // stuff

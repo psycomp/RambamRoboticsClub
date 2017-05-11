@@ -1,3 +1,5 @@
+#define DISPLAY 0x71
+
 // Send stuff to the display
 void displayString(String toSend) {
   clearDisplayI2C();  
