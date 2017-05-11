@@ -78,7 +78,7 @@ void setup() {
     // Give status reading that we should move back
   Serial.print(buffer);
 }
-}
+
 void loop() {
 checkLego();
 
