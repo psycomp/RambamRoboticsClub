@@ -11,7 +11,6 @@
 
   All motors move forward CLOCKWISE
 */
-Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_DCMotor *motor1 = AFMS.getMotor(1);
 Adafruit_DCMotor *motor2 = AFMS.getMotor(2);
 Adafruit_DCMotor *motor3 = AFMS.getMotor(3);
@@ -121,9 +120,6 @@ void testAllWheels() {
   motor4->run(FORWARD);
   delay(3000);
   motor4->run(RELEASE);
-
-
-  while (1);
 }
 
 

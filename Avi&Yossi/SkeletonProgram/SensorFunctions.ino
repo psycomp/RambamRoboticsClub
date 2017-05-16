@@ -1,13 +1,3 @@
-#define MULTIPLEXER 0x70
-#define BNO055_SAMPLERATE_DELAY_MS (100)
-
-// Global Variables
-boolean SensorOne = false;
-boolean SensorTwo = false;
-
-Adafruit_BNO055 bno = Adafruit_BNO055();
-Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_700MS, TCS34725_GAIN_1X);
-
 // Read the off switch
 boolean getOffSwitch() {
   return digitalRead(OFF_SWITCH);
@@ -35,11 +25,12 @@ int getColorSensor() {
   tcs.getRawData(&r, &g, &b, &c);
   colorTemp = tcs.calculateColorTemperature(r, g, b);
   lux = tcs.calculateLux(r, g, b);
+
+  // What do we return here??
   return 0;
 }
 
 // Read the sensors, figure out a value & send it back
-// This is test code
 int getLegoSensor() {
   int reading1, strength1;
   int reading2, strength2;  
@@ -65,8 +56,40 @@ int getLegoSensor() {
       reading2 = 0;
       strength2 = 0;
     }
-  }
-  
+  } 
+
+  // What do we return here??
   return 0;
+}
+
+int getTSOP(int smoothing = 0) {
+  if(smoothing > 0) {
+    RunningAverage index_ra(smoothing);
+    RunningAverage strength_ra(smoothing);
+    index_ra.clear();
+    strength_ra.clear();
+    for(int x = 0; x < smoothing; x++) {
+      Wire.requestFrom(0x50, 2);
+      if (Wire.available()) {
+        int index = Wire.read();
+        index_ra.addValue(index);
+        int strength = Wire.read();
+        strength_ra.addValue(strength);
+      }
+      // What do we return here??
+      // convert to int from float
+      // index_ra.getAverage();
+      // strength_ra.getAverage();
+    }
+  } else {
+    Wire.requestFrom(0x50, 2);
+    if (Wire.available()) {
+      int index = Wire.read();
+      int strength = Wire.read();
+// What do we return here??
+//      index;
+//      strength;
+    }
+  }
 }
 
