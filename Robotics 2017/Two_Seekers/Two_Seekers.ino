@@ -5,7 +5,6 @@ extern "C" {
 #include "utility/twi.h"  // from Wire library, so we can do bus scanning
 }
 
-#define MULTIPLEXER 0x70
 
 boolean SensorOne = false;
 boolean SensorTwo = false;
@@ -25,16 +24,19 @@ void setup() {
 
   uint8_t data;
   selectSeeker(0);
-  if (!twi_writeTo(MULTIPLEXER, &data, 0, 1, 1)) {
+  if (!twi_writeTo(IR_SENSOR, &data, 0, 1, 1)) {
     SensorOne = true;
+    Serial.println("A");
     InfraredSeeker::Initialize();
   }
   selectSeeker(1);
-  if (!twi_writeTo(MULTIPLEXER, &data, 0, 1, 1)) {
+  if (!twi_writeTo(IR_SENSOR, &data, 0, 1, 1)) {
     SensorTwo = true;
+    Serial.println("B");
     InfraredSeeker::Initialize();
   }
   delay(500);
+  Serial.println("done");
 }
   int reading1, strength1;
   int reading2, strength2;
@@ -47,6 +49,7 @@ void setup() {
   InfraredResult InfraredBall1, InfraredBall2;
   
   if(SensorOne) {
+    Serial.println("In 1");
     selectSeeker(0);
     InfraredBall1 = InfraredSeeker::ReadAC();
     reading1 = InfraredBall1.Direction - 5;
@@ -55,9 +58,11 @@ void setup() {
       reading1 = 0;
       strength1 = 0;
     }
+    Serial.println("Done 1");
   }
 
   if(SensorTwo) {
+    Serial.println("In 2");
     selectSeeker(1);
     InfraredBall2 = InfraredSeeker::ReadAC();
     reading2 = InfraredBall2.Direction - 5;
@@ -66,8 +71,8 @@ void setup() {
       reading2 = 0;
       strength2 = 0;
     }
-  }
-  
+    Serial.println("Done 2");
+  }  
   char buffer[100];
   if(SensorOne && !SensorTwo)
     sprintf(buffer,"%i,%i\n",reading1, strength1);
@@ -80,6 +85,5 @@ void setup() {
 }
 
 void loop() {
-checkLego();
-
+  checkLego();
 }
