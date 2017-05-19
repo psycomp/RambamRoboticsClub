@@ -119,7 +119,14 @@ void loop(void) {
       drive(0, MOTOR_SPEED, 0);
       delay(350);
       drive(0, -MOTOR_SPEED, 0);
-      while (getColor() > BLACK) {}
+      int start = millis();
+      // move back to black line ...
+      while (getColor() > BLACK) {
+        // ... unless it takes too long for some reason (I'm looking at you, ghost-who-makes-the-robot-fail-simple-straight-line-tests!)
+        if (millis() - start > 1000) {
+          break;
+        }
+      }
 //      delay(350);
     }
     if (abs(compOff) > 15) {
@@ -127,8 +134,11 @@ void loop(void) {
       //while (abs(getCompOff()) > 10) {}
     } else {
       switch (sensor) {
+      /* `!(c > WHITE && lastXDir == [LEFT|RIGHT])` -> If one white line, don't keep going the direction that got you there.
+       * `!(c >= BLACK && lastXDir == LEFT)`        -> If NOT on black line, don't keep going the direction that got you there.
+       */
       case 1:
-        if (strength > 5 && !(c > WHITE && lastXDir == LEFT)) {
+        if (strength > 5 && !(c > WHITE && lastXDir == LEFT) && !(c >= BLACK && lastXDir == LEFT)) {
           drive(-MOTOR_SPEED, 0, 0);
           lastXDir = LEFT;
         } else if (rot != 0) {
@@ -136,10 +146,10 @@ void loop(void) {
         }
         break;
       case 2:
-        if (strength > 14 && !(c > WHITE && lastXDir == LEFT)) {
+        if (strength > 14 && !(c > WHITE && lastXDir == LEFT) && !(c >= BLACK && lastXDir == LEFT)) {
           drive(-MOTOR_SPEED, 0, 0);
           lastXDir = LEFT;
-        } else if (strength > 5 && !(c > WHITE && lastXDir == LEFT)) {
+        } else if (strength > 5 && !(c > WHITE && lastXDir == LEFT) && !(c >= BLACK && lastXDir == LEFT)) {
           drive(-MOTOR_SPEED, 0, 0);
           lastXDir = LEFT;
         } else if (rot != 0) {
@@ -152,10 +162,10 @@ void loop(void) {
         }
         break;
       case 4:
-        if (strength > 14 && !(c > WHITE && lastXDir == RIGHT)) {
+        if (strength > 14 && !(c > WHITE && lastXDir == RIGHT) && !(c >= BLACK && lastXDir == RIGHT)) {
           drive(MOTOR_SPEED, 0, 0);
           lastXDir = RIGHT;
-        } else if (strength > 5 && !(c > WHITE && lastXDir == RIGHT)) {
+        } else if (strength > 5 && !(c > WHITE && lastXDir == RIGHT) && !(c >= BLACK && lastXDir == RIGHT)) {
           drive(MOTOR_SPEED, 0, 0);
           lastXDir = RIGHT;
         } else if (rot != 0) {
@@ -163,7 +173,7 @@ void loop(void) {
         }
         break;
       case 5:
-        if (strength > 5 && !(c > WHITE && lastXDir == RIGHT)) {
+        if (strength > 5 && !(c > WHITE && lastXDir == RIGHT) && !(c >= BLACK && lastXDir == RIGHT)) {
           drive(MOTOR_SPEED, 0, 0);
           lastXDir = RIGHT;
         } else if (rot != 0) {
