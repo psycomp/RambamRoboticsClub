@@ -7,4 +7,4 @@
   - Install the Charlieplex library in this repo, and load Examples->Charlieplex->Charlieplex
 - Power the board. Two button cells (about 5v) is over spec for the ATTiny, but it's worked fine for me.
 
-<img src="./Untitled.png" width="25%" height="25%"/>
+<img src="./Untitled2.png" width="25%" height="25%"/>
